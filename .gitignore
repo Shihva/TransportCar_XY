@@ -1,0 +1,61 @@
+# Build directories and CMake-generated files
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CMakeUserPresets.json
+.ninja_*
+build.ninja
+
+# Compiler and linker output
+*.o
+*.obj
+*.d
+*.elf
+*.axf
+*.hex
+*.bin
+*.map
+*.lst
+*.su
+*.crf
+*.lnp
+*.iex
+*.build_log.htm
+
+# Keil output and per-user workspace state
+/Transport_car/MDK-ARM/Transport_car/
+Objects/
+Listings/
+*.uvguix.*
+*.uvgui.*
+*.uvopt
+
+# Local editor settings and caches
+.vscode/
+.idea/
+.cache/
+**/.settings/**
+*.code-workspace
+mx.scratch
+
+# Temporary files and operating-system metadata
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
