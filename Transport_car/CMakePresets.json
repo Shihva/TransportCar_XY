@@ -18,6 +18,27 @@
             }
         },
         {
+            "name": "Offline30cm",
+            "inherits": "Debug",
+            "cacheVariables": { "CHASSIS_OFFLINE_30CM": "ON" }
+        },
+        {
+            "name": "Offline1m",
+            "inherits": "Offline30cm",
+            "cacheVariables": {
+                "CHASSIS_TEST_DISTANCE_MM": "1000.0",
+                "CHASSIS_TEST_TIMEOUT_MS": "20000"
+            }
+        },
+        {
+            "name": "OfflineTurn90",
+            "inherits": "Debug",
+            "cacheVariables": {
+                "CHASSIS_OFFLINE_TURN90": "ON",
+                "CHASSIS_TEST_TIMEOUT_MS": "15000"
+            }
+        },
+        {
             "name": "Release",
             "inherits": "default",
             "cacheVariables": {
@@ -29,6 +50,18 @@
         {
             "name": "Debug",
             "configurePreset": "Debug"
+        },
+        {
+            "name": "Offline30cm",
+            "configurePreset": "Offline30cm"
+        },
+        {
+            "name": "Offline1m",
+            "configurePreset": "Offline1m"
+        },
+        {
+            "name": "OfflineTurn90",
+            "configurePreset": "OfflineTurn90"
         },
         {
             "name": "Release",

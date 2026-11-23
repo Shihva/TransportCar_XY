@@ -477,6 +477,30 @@ void ChassisRuntime_TaskStep(void)
     taskEXIT_CRITICAL();
 }
 
+#ifndef CHASSIS_OFFLINE_30CM
+void ChassisRuntime_EndWheelTest(void)
+{
+    /* 仅在诊断已发出停车命令并等待停止之后调用。
+     * 丢弃诊断期间的位移和待处理命令，避免恢复后意外执行旧目标。 */
+    xQueueReset(s_command_queue);
+    chassis.move.vx = 0.0f;
+    chassis.move.vy = 0.0f;
+    chassis.move.vw = 0.0f;
+    s_body_velocity = true;
+    s_last_sample_ms = 0U;
+    s_stop_sent = 0U;
+    g_chassis_runtime.nav_initialized = 0U;
+    g_chassis_runtime.status = CHASSIS_RUNTIME_NOT_READY;
+    g_chassis_runtime.fault = CHASSIS_RUNTIME_FAULT_NONE;
+    g_chassis_runtime.turn_phase = CHASSIS_TURN_PHASE_NONE;
+    memset(&g_chassis_runtime.output, 0, sizeof(g_chassis_runtime.output));
+    memset(&g_chassis_runtime.nav, 0, sizeof(g_chassis_runtime.nav));
+    taskENTER_CRITICAL();
+    s_published = g_chassis_runtime;
+    taskEXIT_CRITICAL();
+}
+#endif
+
 bool ChassisRuntime_UseBodyVelocity(void)
 {
     ChassisCommand_t command = {0};

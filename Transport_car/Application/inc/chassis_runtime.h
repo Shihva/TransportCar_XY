@@ -75,6 +75,11 @@ bool ChassisRuntime_Create(void);
 /* 仅由20 ms高优先级电机任务调用。 */
 void ChassisRuntime_TaskStep(void);
 
+#ifndef CHASSIS_OFFLINE_30CM
+/* 仅供底盘任务在单轮诊断停车后调用。下一周期重新建立里程计起点。 */
+void ChassisRuntime_EndWheelTest(void);
+#endif
+
 /* 以下接口由主流程任务调用；命令进入队列后由电机任务执行。 */
 bool ChassisRuntime_GotoXY(float x_mm, float y_mm, float yaw_deg,
                            uint32_t *sequence);

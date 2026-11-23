@@ -69,7 +69,15 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add project symbols (macros)
+option(CHASSIS_OFFLINE_30CM "Run the distance test once after boot" OFF)
+option(CHASSIS_OFFLINE_TURN90 "Run a counterclockwise 90-degree turn once after boot" OFF)
+set(CHASSIS_TEST_DISTANCE_MM 300.0 CACHE STRING "Straight-line test distance in mm")
+set(CHASSIS_TEST_TIMEOUT_MS 8000 CACHE STRING "Straight-line test timeout in ms")
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    $<$<BOOL:${CHASSIS_OFFLINE_30CM}>:CHASSIS_OFFLINE_30CM>
+    $<$<BOOL:${CHASSIS_OFFLINE_TURN90}>:CHASSIS_OFFLINE_TURN90>
+    CHASSIS_TEST_DISTANCE_MM=${CHASSIS_TEST_DISTANCE_MM}f
+    CHASSIS_TEST_TIMEOUT_MS=${CHASSIS_TEST_TIMEOUT_MS}U
     # Add user defined symbols
 )
 

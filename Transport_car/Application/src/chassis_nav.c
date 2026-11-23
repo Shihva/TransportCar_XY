@@ -130,7 +130,7 @@ void ChassisNav_GetDefaultConfig(ChassisNav_Config_t *config)
 
     config->wheel_diameter_mm = 2.0f * CHASSIS_WHEEL_RADIUS_MM;
     config->encoder_counts_per_rev = CHASSIS_COUNTS_PER_WHEEL_REV;
-    config->half_length_plus_width_mm = (CHASSIS_TRACK_MM + CHASSIS_WHEELBASE_MM) * 0.5f;
+    config->half_length_plus_width_mm = CHASSIS_TURN_LEVER_MM;
     for (i = 0U; i < CHASSIS_NAV_WHEEL_COUNT; ++i) {
         config->encoder_sign[i] = CHASSIS_ENCODER_SIGN;
     }
