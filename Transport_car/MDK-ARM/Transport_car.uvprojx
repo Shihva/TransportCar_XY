@@ -708,9 +708,9 @@
               <FilePath>..\Bsp\Source\chassis_bus.c</FilePath>
             </File>
             <File>
-              <FileName>CY61E_protocol.c</FileName>
+              <FileName>YB_MRA02_protocol.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Bsp\Source\CY61E_protocol.c</FilePath>
+              <FilePath>..\Bsp\Source\YB_MRA02_protocol.c</FilePath>
             </File>
             <File>
               <FileName>bsp_usart.c</FileName>

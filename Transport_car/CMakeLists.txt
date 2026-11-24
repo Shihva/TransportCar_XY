@@ -50,7 +50,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/src/chassis_nav.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/src/chassis_runtime.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Bsp/Source/chassis_bus.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Bsp/Source/CY61E_protocol.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Bsp/Source/YB_MRA02_protocol.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/src/Vision.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/src/Navigation.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/src/IMU.c

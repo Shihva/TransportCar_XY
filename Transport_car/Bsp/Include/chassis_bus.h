@@ -12,7 +12,9 @@ bool ChassisBus_StageTurn(uint8_t address, uint8_t direction, uint16_t rpm,
 bool ChassisBus_StartTogether(void);
 bool ChassisBus_StopAll(void);
 
-/* USART6 使用接收中断；快照包含最近一帧的航向和接收时间。 */
+/* YB-MRA02 USART6，115200 8N1，PC7<-TX，PC6->RX。
+ * 使用接收中断；仅有效0x26欧拉角帧更新快照，yaw已从rad转换为deg。
+ * 模块按协议默认25Hz主动输出，当前不发送校准或算法切换命令。 */
 typedef struct {
     float yaw_deg;
     uint32_t last_update_ms;

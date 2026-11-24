@@ -1,5 +1,5 @@
 #include "chassis_bus.h"
-#include "CY61E_protocol.h"
+#include "YB_MRA02_protocol.h"
 #include "usart.h"
 #include "cmsis_os2.h"
 
@@ -136,35 +136,34 @@ bool ChassisBus_StopAll(void)
 
 /* Transport_car 的 USART6 已配置中断。用 IDLE/收满中断接收连续字节，
  * 残缺帧留给下一批；只有通过协议校验的遥测帧才能刷新航向时间戳。 */
-static CY61E_Stream imu_stream;
+static YB_MRA02_Stream imu_stream;
 static ChassisImu_Snapshot imu_state;
-static uint8_t imu_rx[2][CY61E_MAX_FRAME];
+static uint8_t imu_rx[2][YB_MRA02_MAX_FRAME];
 static uint8_t imu_write_index;
 
 void ChassisImu_Start(void)
 {
-    CY61E_StreamInit(&imu_stream);
+    YB_MRA02_StreamInit(&imu_stream);
     imu_write_index = 0U;
-    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[0], CY61E_MAX_FRAME);
+    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[0], YB_MRA02_MAX_FRAME);
 }
 
 void ChassisImu_Receive(uint16_t size)
 {
-    CY61E_Frame frame;
-    CY61E_Telemetry data;
+    YB_MRA02_Frame frame;
+    float yaw_deg;
     uint8_t *received = imu_rx[imu_write_index];
     imu_write_index ^= 1U;
     /* 先挂下一块缓冲，再解析刚收到的一块。 */
-    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[imu_write_index], CY61E_MAX_FRAME);
-    for (uint16_t i = 0; i < size && i < CY61E_MAX_FRAME; ++i) {
-        CY61E_StreamPush(&imu_stream, received[i]);
-        if (CY61E_StreamNext(&imu_stream, &frame, 0) &&
-            frame.type == CY61E_FRAME_TELEMETRY &&
-            CY61E_DecodeTelemetry(frame.bytes, frame.length, &data) &&
-            !(data.status & CY61E_STATUS_CALIBRATING)) {
-            imu_state.yaw_deg = data.euler_deg[2];
-            imu_state.last_update_ms = HAL_GetTick();
-            ++imu_state.frame_count;
+    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[imu_write_index], YB_MRA02_MAX_FRAME);
+    for (uint16_t i = 0; i < size && i < YB_MRA02_MAX_FRAME; ++i) {
+        YB_MRA02_StreamPush(&imu_stream, received[i]);
+        while (YB_MRA02_StreamNext(&imu_stream, &frame)) {
+            if (YB_MRA02_DecodeYaw(&frame, &yaw_deg)) {
+                imu_state.yaw_deg = yaw_deg;
+                imu_state.last_update_ms = HAL_GetTick();
+                ++imu_state.frame_count;
+            }
         }
     }
 }
