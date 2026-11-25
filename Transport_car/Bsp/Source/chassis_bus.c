@@ -141,11 +141,24 @@ static ChassisImu_Snapshot imu_state;
 static uint8_t imu_rx[2][YB_MRA02_MAX_FRAME];
 static uint8_t imu_write_index;
 
+/* Keil/VSCode Watch诊断。独立于解析流保存，串口错误后重置流也不会清零。
+ * last_euler_frame仅在校验及float检查通过后保存，yaw原始float在下标12~15。
+ * 暂停调试时模块仍会发数据，恢复后可能出现ORE，error_count可用于确认。 */
+static volatile struct {
+    uint32_t rx_event_count;
+    uint32_t rx_byte_count;
+    uint32_t uart_error_count;
+    uint32_t last_uart_error;
+    uint32_t receive_start_failures;
+    uint8_t last_euler_frame[17];
+} imu_debug;
+
 void ChassisImu_Start(void)
 {
     YB_MRA02_StreamInit(&imu_stream);
     imu_write_index = 0U;
-    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[0], YB_MRA02_MAX_FRAME);
+    if (HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[0], YB_MRA02_MAX_FRAME) != HAL_OK)
+        ++imu_debug.receive_start_failures;
 }
 
 void ChassisImu_Receive(uint16_t size)
@@ -153,13 +166,18 @@ void ChassisImu_Receive(uint16_t size)
     YB_MRA02_Frame frame;
     float yaw_deg;
     uint8_t *received = imu_rx[imu_write_index];
+    ++imu_debug.rx_event_count;
+    imu_debug.rx_byte_count += size;
     imu_write_index ^= 1U;
     /* 先挂下一块缓冲，再解析刚收到的一块。 */
-    (void)HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[imu_write_index], YB_MRA02_MAX_FRAME);
+    if (HAL_UARTEx_ReceiveToIdle_IT(&huart6, imu_rx[imu_write_index], YB_MRA02_MAX_FRAME) != HAL_OK)
+        ++imu_debug.receive_start_failures;
     for (uint16_t i = 0; i < size && i < YB_MRA02_MAX_FRAME; ++i) {
         YB_MRA02_StreamPush(&imu_stream, received[i]);
         while (YB_MRA02_StreamNext(&imu_stream, &frame)) {
             if (YB_MRA02_DecodeYaw(&frame, &yaw_deg)) {
+                for (unsigned j = 0U; j < sizeof(imu_debug.last_euler_frame); ++j)
+                    imu_debug.last_euler_frame[j] = frame.bytes[j];
                 imu_state.yaw_deg = yaw_deg;
                 imu_state.last_update_ms = HAL_GetTick();
                 ++imu_state.frame_count;
@@ -171,6 +189,8 @@ void ChassisImu_Receive(uint16_t size)
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *uart)
 {
     if (uart == &huart6) {
+        ++imu_debug.uart_error_count;
+        imu_debug.last_uart_error = uart->ErrorCode;
         HAL_UART_AbortReceive(uart);
         ChassisImu_Start();
     }

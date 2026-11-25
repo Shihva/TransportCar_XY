@@ -4,6 +4,7 @@
 #include "bsp_usart.h"
 #include "Chassis.h"
 #include "usart.h"
+#include "cmsis_os2.h"
 #include <string.h>
 
 Vision vision;
@@ -55,8 +56,11 @@ void Task_VisionCallback(void)
 
 void OS_VisionCallback(void* argument)
 {
+    (void)argument;
     for(;;)
     {
 //        Task_VisionCallback();
+        /* 视觉处理暂未启用时也要阻塞，让调度器运行其它任务及空闲任务。 */
+        osDelay(10U);
     }
 }
